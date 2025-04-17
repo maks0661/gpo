@@ -25,7 +25,6 @@
         <label for="diameter">Диаметр проволоки (мм):</label>
         <select id="diameter">
             <option value="0.1">0.1</option>
-            <option value="0.2">0.2</option>
             <option value="0.3">0.3</option>
             <option value="1">1</option>
         </select>
@@ -61,13 +60,13 @@
         let heatmapChart;
 
         function calculate() {
-            // Параметры из ввода
+            // парметры для ввода
             let d = parseFloat(document.getElementById("diameter").value) / 1000; // м
             let L = parseFloat(document.getElementById("length").value) / 1000;  // м
             let P = parseFloat(document.getElementById("power").value); // Вт
             let T0 = parseFloat(document.getElementById("ambientTemp").value); // °C
 
-            // Фиксированные параметры нитинола
+            // фикс параметры нитинола
             const T_form = 400; // °C (температура фиксации формы)
             const T_restore = 40; // °C (температура восстановления формы, Af)
             const rho = 6450; // кг/м³
@@ -83,12 +82,12 @@
             const sigma_strength = 1000e6; // Па (предел прочности)
             const maxStrain = 0.08; // 8% деформация
 
-            // Масса и площадь
+            // масса и площадь
             let V = Math.PI * (d / 2) ** 2 * L;
             let m = rho * V;
             let A = Math.PI * d * L;
 
-            // Численное решение теплопроводности
+            // численное решение теплопроводности
             const dx = L / 100;
             const dt = 0.01;
             const alpha = lambda / (rho * c);
@@ -127,11 +126,11 @@
 
             let t_restore = (m * c * (Af - T0) + m * latentHeat) / P;
 
-            // Механические свойства
+            // мех.св-ва
             let E = T.reduce((a, b) => a + b) / T.length > Af ? E_austenite : E_martensite;
             let shapeChange = T.reduce((a, b) => a + b) / T.length > Af ? "Да" : "Нет";
 
-            // Результаты
+            // результаты
             document.getElementById("results").innerHTML = `
                 Время нагрева до фиксации формы (400°C): ${t_heat.toFixed(2)} с<br>
                 Время остывания до ${T0 + 5}°C: ${t_cool.toFixed(2)} с<br>
@@ -141,7 +140,7 @@
                 Внутреннее напряжение при восстановлении: ${sigma_restore / 1e6} МПа
             `;
 
-            // Формулы
+            // формулы
             document.getElementById("formulas").innerHTML = `
                 <h3>Формулы:</h3>
                 Масса: m = ρ · π · (d/2)² · L<br>
@@ -151,7 +150,7 @@
                 Время восстановления: t_restore = m · (c · (Af - T₀) + L_h) / P
             `;
 
-            // Анализ
+            // анализ
             let heatAnalysis = P > 10 ? "Высокая мощность ускоряет нагрев" : "Низкая мощность увеличивает время нагрева";
             let coolAnalysis = T0 < 20 ? "Низкая температура среды ускоряет остывание" : "Высокая температура среды замедляет остывание";
             let mechAnalysis = `Сверхупругость (в 20 раз выше стали) и деформация до ${maxStrain * 100}% позволяют восстановление формы при ${Af}°C`;
@@ -163,7 +162,7 @@
                 Фаза: Фиксация формы при ${T_form}°C, восстановление при ${Af}°C с напряжением ${sigma_restore / 1e6} МПа
             `;
 
-            // График температуры
+            // график температуры
             if (chart) chart.destroy();
             const ctx = document.getElementById("tempChart").getContext("2d");
             chart = new Chart(ctx, {
@@ -185,7 +184,7 @@
                 }
             });
 
-            // Создаем heatmap с помощью Chart.js
+            // heatmap
             createHeatmapWithChartJS(T, T0, T_form);
         }
 
@@ -195,19 +194,19 @@
             
             const ctx = document.getElementById('heatmapCanvas').getContext('2d');
             
-            // Удаляем предыдущий heatmap если есть
+            // очищаем предыдущий heatmap если есть
             if (heatmapChart) {
                 heatmapChart.destroy();
             }
             
-            // Создаем градиент для цветов
+            // градиент цветов
             const gradientColors = [
                 { offset: 0, color: 'blue' },
                 { offset: 0.5, color: 'yellow' },
                 { offset: 1, color: 'red' }
             ];
             
-            // Подготавливаем данные для heatmap
+            // данные для heatmap
             const data = {
                 labels: temperatures.map((_, i) => i),
                 datasets: [{
@@ -220,7 +219,7 @@
                 }]
             };
             
-            // Создаем heatmap
+            // heatmap
             heatmapChart = new Chart(ctx, {
                 type: 'bar',
                 data: data,
@@ -247,12 +246,12 @@
                 }
             });
             
-            // Добавляем цветовую шкалу (легенду)
+            // цветовая шкала (легенда)
             addColorLegend(minTemp, maxTemp, gradientColors);
         }
         
         function getColorForValue(value, gradient) {
-            value = Math.max(0, Math.min(1, value)); // Ограничиваем от 0 до 1
+            value = Math.max(0, Math.min(1, value)); // от 0 до 1
             
             for (let i = 1; i < gradient.length; i++) {
                 if (value <= gradient[i].offset) {
@@ -277,7 +276,7 @@
         }
         
         function hexToRgb(hex) {
-            // Упрощенная конвертация hex в rgb
+            // hex в rgb
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? {
                 r: parseInt(result[1], 16),
@@ -294,13 +293,13 @@
             legendContainer.style.width = '100%';
             legendContainer.style.padding = '0 20px';
             
-            // Добавляем минимальное значение
+            // мин.знач
             const minLabel = document.createElement('span');
             minLabel.textContent = `${minTemp}°C`;
             minLabel.style.color = gradient[0].color;
             legendContainer.appendChild(minLabel);
             
-            // Добавляем среднее значение
+            // ср.знач
             if (gradient.length > 2) {
                 const midIndex = Math.floor(gradient.length / 2);
                 const midLabel = document.createElement('span');
@@ -310,7 +309,7 @@
                 legendContainer.appendChild(midLabel);
             }
             
-            // Добавляем максимальное значение
+            // макс.знач
             const maxLabel = document.createElement('span');
             maxLabel.textContent = `${maxTemp}°C`;
             maxLabel.style.color = gradient[gradient.length-1].color;
